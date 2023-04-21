@@ -1,0 +1,45 @@
+---
+image: dustinliddick/docker-github-action-molecule:latest
+
+stages:
+  - test
+
+variables:
+  PY_COLORS: 1
+  DOCKER_DRIVER: overlay2
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_PROJECT_ID == $CI_MERGE_REQUEST_SOURCE_PROJECT_ID
+      when: never
+    - when: always
+
+services:
+  - docker:stable-dind
+
+molecule_test:
+  stage: test
+  script:
+    - molecule test
+  rules:
+    - if: $CI_COMMIT_REF_NAME == "main"
+  parallel:
+    matrix:
+      - image: "alpine"
+        tag: "latest"
+      - image: "enterpriselinux"
+        tag: "7"
+      - image: "enterpriselinux"
+        tag: "8"
+      - image: "enterpriselinux"
+        tag: "latest"
+      - image: "fedora"
+        tag: "36"
+      - image: "fedora"
+        tag: "latest"
+      - image: "oraclelinux"
+        tag: "7"
+      - image: "oraclelinux"
+        tag: "8"

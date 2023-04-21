@@ -1,0 +1,50 @@
+---
+# See https://github.com/ContinuousSecurityTooling/ansible-role-secure-docker/blob/master/molecule/default/molecule.yml
+# See https://gitlab.com/richardskumat/ansible-role-client-debian-role/-/blob/master/molecule/default/molecule.yml
+dependency:
+  name: galaxy
+  enabled: true
+  options:
+    role-file: requirements.yml
+    requirements-file: requirements.yml
+# lint: |
+#     set -e
+#     yamllint .
+#     ansible-lint
+driver:
+  name: docker
+platforms:
+  - name: "bootstrap-${image:-fedora}-${tag:-latest}${TOX_ENVNAME}"
+    image: "${namespace:-dustinliddick/${image:-docker-centos8-ansible}${tag:-latest}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    command: /sbin/init
+    capabilities:
+      - SYS_ADMIN
+    # exposed_ports:
+    #   - 80/udp
+    #   - 80/tcp
+    # published_ports:/ansible/devel/reference_appendices/config.html
+    #   - 0.0.0.0:8888:80/udp
+    #   - 0.0.0.0:8888:80/tcp
+    privileged: true
+    pre_build_image: true
+    pull: true
+provisioner:
+  name: ansible
+  playbooks:
+    converge: converge.yml
+  lint:
+    name: ansible-lint
+  log: true
+  options:
+    vvv: true
+scenario:
+  name: default
+  test_sequence:
+    - destroy
+    - dependency
+    - syntax
+verifier:
+  name: ansible
