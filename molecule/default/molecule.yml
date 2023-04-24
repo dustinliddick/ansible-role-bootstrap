@@ -33,6 +33,9 @@ platforms:
     pull: true
 provisioner:
   name: ansible
+  env:
+    ANSIBLE_LOCAL_TEMP: "${WORKSPACE:-$HOME}/.ansible/tmp"
+    ANSIBLE_REMOTE_TMP: /tmp
   playbooks:
     converge: converge.yml
   lint:
