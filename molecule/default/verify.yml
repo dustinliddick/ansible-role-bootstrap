@@ -1,7 +1,7 @@
 ---
 - name: Verify
   hosts: all
-  become: no
+  become: true
   gather_facts: no
 
   tasks:
